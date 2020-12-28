@@ -3,13 +3,17 @@ import java.util.ArrayList;
 
 public class Find{
 	//String[] input;
-	static Double stoppingCriteria = Math.pow(10,-15);
+	static Double stoppingCriteria = Math.pow(10,-12);
 	
 	public static void main(String[] args){
-		PolyElement[] hi = {new PolyElement("7:1"), new PolyElement("4:3")};
+		PolyElement[] hi = {new PolyElement("120:0"), new PolyElement("-23:1"), new PolyElement("1:2")};
 		Poly hello = new Poly(hi);
+		println(plot(hello, 1.0, -10.0 , 10.0).toString());
 		
+		Double q = singleSolve(7.0, hello , new NewtonRaphson());
+		Double p = singleSolve(13.0, hello , new NewtonRaphson());
 		
+		println(q.toString() +", "+ p.toString() );
 		println("Ended");
 	}
 	
@@ -18,28 +22,27 @@ public class Find{
 		return 0;
 	}
 	
-	
 	public static Double singleSolve(Double xCur, Func f, ItMe iteration){
 		return singleSolve(xCur, f, iteration, 0);
 	}
 	
 	public static Double singleSolve(Double xCur, Func f, ItMe iteration, int depth){
+		// TODO: implement HashMap to avoid calculating the same value twice. 
 		// find the next one
 		Double xNex = iteration.next(xCur, f);
 		depth++;
 		
-		// determine if it is good enough
-	
+		// determine if a better value is needed
 		boolean noImprovement = Math.abs(xNex - xCur) < stoppingCriteria;
 		boolean isClose = Math.abs(f.evaluate(xNex)) < stoppingCriteria;
 		boolean diverged = depth >= Math.pow(10,4);
 		if(diverged){
-			println(depth.toString());
+			println(Integer.toString(depth));
 			return null;
 		}
 		
 		if(noImprovement && isClose){
-			println(depth.toString()); // this indicates the quality of the method
+			println(Integer.toString(depth)); // this indicates the quality of the method
 			return xNex;
 		}else{
 			return singleSolve(xNex, f, iteration, depth);
@@ -61,8 +64,6 @@ public class Find{
 		return temp;
 	}
 	
-	
-	
 	public static void println(String str){
 		System.out.println(str);
 	}
@@ -73,15 +74,19 @@ interface Func{
 	public Func differentiate();
 }
 
-interface ItMe{
+interface ItMe{ // Iterative method
 	public Double next(Double x, Func f);
-	// Iterative method
 	// Turn x_n to x_n+1
 }
 
 
-class 
-
+class NewtonRaphson implements ItMe{
+	NewtonRaphson(){}
+	
+	public Double next(Double x, Func f){
+		return x - ((f.evaluate(x))/(f.differentiate().evaluate(x)));
+	}
+}
 
 class Poly implements Func{
 	public PolyElement[] elements;

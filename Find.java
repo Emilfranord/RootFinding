@@ -1,25 +1,34 @@
 import java.lang.Math; 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Find{
 	//String[] input;
-	static Double stoppingCriteria = Math.pow(10,-12);
+	static Double stoppingCriteria = Math.pow(10,-15);
 	
 	public static void main(String[] args){
-		PolyElement[] hi = {new PolyElement("120:0"), new PolyElement("-23:1"), new PolyElement("1:2")};
+		//PolyElement[] hi = {new PolyElement("120:0"), new PolyElement("-23:1"), new PolyElement("1:2")};
+		//PolyElement[] hi = {new PolyElement("1:3"), new PolyElement("4:2"), new PolyElement("-10:0")};
+		PolyElement[] hi = {new PolyElement("1:3"), new PolyElement("-10:0")};
 		Poly hello = new Poly(hi);
-		println(plot(hello, 1.0, -10.0 , 10.0).toString());
+		//println(plot(hello, 1.0, -10.0 , 10.0).toString());
 		
-		Double q = singleSolve(7.0, hello , new NewtonRaphson());
-		Double p = singleSolve(13.0, hello , new NewtonRaphson());
-		
-		println(q.toString() +", "+ p.toString() );
+		//Double q = singleSolve(7.0, hello , new NewtonRaphson());
+		Double p = singleSolve(1.5, hello , new NewtonRaphson());
+		Double q = singleSolve(1.5, hello , new HalleyMod());
+		Double r = singleSolve(1.5, hello , new HouseholderMod());
+		//Double p = singleSolve(-0.3, hello , new HalleyMod());
+		//Double p = 0.0;
+		println(q.toString() +", "+ p.toString() +", " + r.toString());
 		println("Ended");
 	}
 	
-	public static int factorial(int n){
-		// TODO: implement this, not urgent
-		return 0;
+	public static long factorial(int n){ // https://www.baeldung.com/java-calculate-factorial
+	    long fact = 1;
+		for (int i = 2; i <= n; i++) {
+			fact = fact * i;
+		}
+		return fact;
 	}
 	
 	public static Double singleSolve(Double xCur, Func f, ItMe iteration){
@@ -35,13 +44,13 @@ public class Find{
 		// determine if a better value is needed
 		boolean noImprovement = Math.abs(xNex - xCur) < stoppingCriteria;
 		boolean isClose = Math.abs(f.evaluate(xNex)) < stoppingCriteria;
-		boolean diverged = depth >= Math.pow(10,4);
-		if(diverged){
-			println(Integer.toString(depth));
-			return null;
+		boolean hasDiverged = depth >= Math.pow(10,4);
+		if(hasDiverged){
+			println("Diverged at: "+Integer.toString(depth));
+			return xNex;
 		}
 		
-		if(noImprovement && isClose){
+		if(noImprovement || isClose){ // other works do not specify if this is AND or OR.
 			println(Integer.toString(depth)); // this indicates the quality of the method
 			return xNex;
 		}else{
@@ -59,7 +68,6 @@ public class Find{
 		
 		for(Double d = min ; d < max;  d+=jumpLength){
 			temp.add(f.evaluate(d));
-			
 		}
 		return temp;
 	}
@@ -67,6 +75,12 @@ public class Find{
 	public static void println(String str){
 		System.out.println(str);
 	}
+	
+	
+	public static boolean isDoubleRoot(Func f, Double x){
+		return Math.abs(f.differentiate().evaluate(x)) < stoppingCriteria;
+	}
+	
 }
 
 interface Func{
@@ -87,6 +101,38 @@ class NewtonRaphson implements ItMe{
 		return x - ((f.evaluate(x))/(f.differentiate().evaluate(x)));
 	}
 }
+
+class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method without second derivatives for nonlinear equation
+	HalleyMod(){}
+	
+	public Double next(Double x, Func f){
+	//Double x;
+	Double fx  = f.evaluate(x); 
+	Double fpx = f.differentiate().evaluate(x);
+	Double y   = x - ((fx)/(fpx));
+	Double fy  = f.evaluate(y);
+	Double fpy = f.differentiate().evaluate(y);
+	
+	return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
+
+	}
+}
+
+class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder iterative method for nonlinear equations
+	HouseholderMod(){}
+	
+	public Double next(Double x, Func f){
+		Double y = new NewtonRaphson().next(x, f);
+		Double fy = f.evaluate(y); 
+		Double fpy = f.differentiate().evaluate(y);
+		Double fppy = f.differentiate().differentiate().evaluate(y);
+		
+		return y - (fy / fpy) - ((fy*fy*fppy)/(2*fpy*fpy*fpy));
+	}
+	
+}
+
+
 
 class Poly implements Func{
 	public PolyElement[] elements;

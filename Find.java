@@ -127,6 +127,27 @@ class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder itera
 	
 }
 
+class W4NewtonRaphson implements ItMe{
+	private Double damper = 1; // if this is unchanged, it is indentical to NewtonRaphson
+	
+	W4NewtonRaphson(Double damp){
+		if (damp > 1){
+			this.damp = 1;
+			println("Error, damp should be in the interval [0;1]")
+		}
+		this.damper = damp;
+	}
+	W4NewtonRaphson(){
+		this.damper = 1;
+	}
+	
+	public Double next(Double x, Func f){
+		
+		return x - damper * ((f.evaluate(x))/(f.differentiate().evaluate(x)));
+		
+	}
+	
+}
 
 
 

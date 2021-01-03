@@ -7,19 +7,16 @@ public class Find{
 	static Double stoppingCriteria = Math.pow(10,-15);
 	
 	public static void main(String[] args){
-		//PolyElement[] hi = {new PolyElement("120:0"), new PolyElement("-23:1"), new PolyElement("1:2")};
-		//PolyElement[] hi = {new PolyElement("1:3"), new PolyElement("4:2"), new PolyElement("-10:0")};
-		PolyElement[] hi = {new PolyElement("1:3"), new PolyElement("-10:0")};
-		Poly hello = new Poly(hi);
-		//println(plot(hello, 1.0, -10.0 , 10.0).toString());
 		
-		//Double q = singleSolve(7.0, hello , new NewtonRaphson());
+		Poly hello = new Poly("8:6 7:4 99:0");
+		
 		Double p = singleSolve(1.5, hello , new NewtonRaphson());
 		Double q = singleSolve(1.5, hello , new HalleyMod());
 		Double r = singleSolve(1.5, hello , new HouseholderMod());
-		//Double p = singleSolve(-0.3, hello , new HalleyMod());
-		//Double p = 0.0;
+		
 		println(q.toString() +", "+ p.toString() +", " + r.toString());
+		println(hello.toString());
+		
 		println("Ended");
 	}
 	
@@ -76,11 +73,9 @@ public class Find{
 		System.out.println(str);
 	}
 	
-	
 	public static boolean isDoubleRoot(Func f, Double x){
 		return Math.abs(f.differentiate().evaluate(x)) < stoppingCriteria;
 	}
-	
 }
 
 interface Func{
@@ -134,11 +129,23 @@ class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder itera
 
 
 
+
 class Poly implements Func{
 	public PolyElement[] elements;
 	
 	public Poly(String input){
 		// TODO: implement this
+		String[] splitInp = input.split(" ");
+		PolyElement[] temp = new PolyElement[splitInp.length];
+		
+		int index = 0;
+		for (String q : splitInp){
+			temp[index] = new PolyElement(q);
+			
+			index++;
+		}
+		this.elements = temp;
+		
 	}
 	
 	public Poly(PolyElement[] input){
@@ -168,6 +175,7 @@ class Poly implements Func{
 			temp.append(q.toString());
 			temp.append("+");
 		}
+		sb.setLength(sb.length() - 1);
 		return temp.toString();
 	}
 }

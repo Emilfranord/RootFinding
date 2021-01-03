@@ -8,14 +8,20 @@ public class Find{
 	
 	public static void main(String[] args){
 		
-		Poly hello = new Poly("8:6 7:4 99:0");
+		//Poly hello = new Poly("8:6 7:4 -10:0");
+		Poly hello = new Poly("1:5 -56:4 1249:3 -13786:2 75348:1 -163880:0");
 		
-		Double p = singleSolve(1.5, hello , new NewtonRaphson());
-		Double q = singleSolve(1.5, hello , new HalleyMod());
-		Double r = singleSolve(1.5, hello , new HouseholderMod());
-		
-		println(q.toString() +", "+ p.toString() +", " + r.toString());
 		println(hello.toString());
+		
+		Double guess = 10.1;
+		
+		println("Guess at " + guess.toString());
+		Double p = 0.0; //singleSolve(guess, hello , new NewtonRaphson());
+		Double q = singleSolve(guess, hello , new HalleyMod());
+		Double r = singleSolve(guess, hello , new HouseholderMod());
+		Double s = singleSolve(guess, hello , new W4NewtonRaphson(0.5));
+		
+		println(p.toString() +", "+ q.toString() +", " + r.toString()+", " + s.toString());
 		
 		println("Ended");
 	}
@@ -32,7 +38,7 @@ public class Find{
 		return singleSolve(xCur, f, iteration, 0);
 	}
 	
-	public static Double singleSolve(Double xCur, Func f, ItMe iteration, int depth){
+	public static Double singleSolve(Double xCur, Func f, ItMe iteration, int depth) throws ArithmeticException{
 		// TODO: implement HashMap to avoid calculating the same value twice. 
 		// find the next one
 		Double xNex = iteration.next(xCur, f);
@@ -44,7 +50,9 @@ public class Find{
 		boolean hasDiverged = depth >= Math.pow(10,4);
 		if(hasDiverged){
 			println("Diverged at: "+Integer.toString(depth));
-			return xNex;
+			throw new ArithmeticException("Diverged");
+			//println(Integer.toString(depth));
+			//return xNex;
 		}
 		
 		if(noImprovement || isClose){ // other works do not specify if this is AND or OR.
@@ -88,7 +96,6 @@ interface ItMe{ // Iterative method
 	// Turn x_n to x_n+1
 }
 
-
 class NewtonRaphson implements ItMe{
 	NewtonRaphson(){}
 	
@@ -127,26 +134,19 @@ class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder itera
 	
 }
 
-class W4NewtonRaphson implements ItMe{
-	private Double damper = 1; // if this is unchanged, it is indentical to NewtonRaphson
+class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional root-finding scheme for nonlinear systems of equations
+	private Double damper; // if this is unchanged, it is indentical to NewtonRaphson
 	
 	W4NewtonRaphson(Double damp){
-		if (damp > 1){
-			this.damp = 1;
-			println("Error, damp should be in the interval [0;1]")
-		}
 		this.damper = damp;
 	}
 	W4NewtonRaphson(){
-		this.damper = 1;
+		this.damper = 1.0;
 	}
 	
 	public Double next(Double x, Func f){
-		
 		return x - damper * ((f.evaluate(x))/(f.differentiate().evaluate(x)));
-		
 	}
-	
 }
 
 
@@ -196,7 +196,7 @@ class Poly implements Func{
 			temp.append(q.toString());
 			temp.append("+");
 		}
-		sb.setLength(sb.length() - 1);
+		temp.setLength(temp.length() - 1);
 		return temp.toString();
 	}
 }

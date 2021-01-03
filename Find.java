@@ -7,21 +7,25 @@ public class Find{
 	static Double stoppingCriteria = Math.pow(10,-15);
 	
 	public static void main(String[] args){
-		
 		//Poly hello = new Poly("8:6 7:4 -10:0");
 		Poly hello = new Poly("1:5 -56:4 1249:3 -13786:2 75348:1 -163880:0");
 		
 		println(hello.toString());
 		
-		Double guess = 10.1;
+		Double guess = 9.5;
 		
 		println("Guess at " + guess.toString());
-		Double p = 0.0; //singleSolve(guess, hello , new NewtonRaphson());
-		Double q = singleSolve(guess, hello , new HalleyMod());
-		Double r = singleSolve(guess, hello , new HouseholderMod());
-		Double s = singleSolve(guess, hello , new W4NewtonRaphson(0.5));
+		Double p = 0.0; //singleSolve(guess, hello, new NewtonRaphson());
+		Double q = singleSolve(guess, hello, new HalleyMod());
+		Double r = singleSolve(guess, hello, new HouseholderMod());
+		Double s = 0.0; //singleSolve(guess, hello, new W4NewtonRaphson(0.5));
+		Double t = singleSolve(guess, hello, new DecompositionII());
 		
-		println(p.toString() +", "+ q.toString() +", " + r.toString()+", " + s.toString());
+		println(  p.toString()+", "
+				+ q.toString()+", " 
+				+ r.toString()+", " 
+				+ s.toString()+", " 
+				+ t.toString());
 		
 		println("Ended");
 	}
@@ -47,9 +51,8 @@ public class Find{
 		// determine if a better value is needed
 		boolean noImprovement = Math.abs(xNex - xCur) < stoppingCriteria;
 		boolean isClose = Math.abs(f.evaluate(xNex)) < stoppingCriteria;
-		boolean hasDiverged = depth >= Math.pow(10,4);
+		boolean hasDiverged = depth >= Math.pow(10,3);
 		if(hasDiverged){
-			println("Diverged at: "+Integer.toString(depth));
 			throw new ArithmeticException("Diverged");
 			//println(Integer.toString(depth));
 			//return xNex;
@@ -149,6 +152,21 @@ class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional
 	}
 }
 
+class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
+	
+	public Double next(Double x, Func f){
+	//Double x;
+	Double fx  = f.evaluate(x); 
+	Double fpx = f.differentiate().evaluate(x);
+	Double y   = x - ((fx)/(fpx));
+	Double fy  = f.evaluate(y);
+	Double fpy = f.differentiate().evaluate(y);
+		
+		return x- fx/fpx -2*(fy/fpx) + (fy*fpy)/(fpx*fpx);
+		
+	}
+	
+}
 
 
 class Poly implements Func{

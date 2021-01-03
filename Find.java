@@ -119,7 +119,6 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 	Double fpy = f.differentiate().evaluate(y);
 	
 	return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
-
 	}
 }
 
@@ -134,7 +133,6 @@ class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder itera
 		
 		return y - (fy / fpy) - ((fy*fy*fppy)/(2*fpy*fpy*fpy));
 	}
-	
 }
 
 class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional root-finding scheme for nonlinear systems of equations
@@ -168,19 +166,16 @@ class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Ne
 	
 }
 
-
 class Poly implements Func{
 	public PolyElement[] elements;
 	
 	public Poly(String input){
-		// TODO: implement this
 		String[] splitInp = input.split(" ");
 		PolyElement[] temp = new PolyElement[splitInp.length];
 		
 		int index = 0;
 		for (String q : splitInp){
 			temp[index] = new PolyElement(q);
-			
 			index++;
 		}
 		this.elements = temp;
@@ -208,13 +203,18 @@ class Poly implements Func{
 	}
 	
 	public String toString(){
-		// TODO: improve this
+		// TODO: make LaTeX variant
 		StringBuilder temp = new StringBuilder();
+		boolean first = true;
 		for(PolyElement q :elements){
+			if (q.coefficient >=0){
+				if (!first){
+					temp.append("+");
+				}
+			}
 			temp.append(q.toString());
-			temp.append("+");
+			first = false;
 		}
-		temp.setLength(temp.length() - 1);
 		return temp.toString();
 	}
 }
@@ -241,6 +241,18 @@ class PolyElement implements Func{
 		if(coefficient == 0){return "";}
 		
 		return coefficient +"*x^" + exponent;
+	}
+	
+	public String toString(String type){
+		if(!type.equals("latex")){
+			return this.toString();
+		}
+		
+		if(exponent == 0){return coefficient.toString();}
+		if(exponent == 1){return coefficient +"\\cdot x";}
+		if(coefficient == 0){return "";}
+		
+		return coefficient +"\\cdot x^{" + exponent+"}";
 	}
 	
 	public Double evaluate(Double x){

@@ -2,6 +2,8 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+// use flag: -Xss8m, if java throws a stackoverflow
+
 public class Find{
 	//String[] input;
 	static Double stoppingCriteria = Math.pow(10,-15);
@@ -15,10 +17,10 @@ public class Find{
 		Double guess = 9.5;
 		
 		println("Guess at " + guess.toString());
-		Double p = 0.0; //singleSolve(guess, hello, new NewtonRaphson());
+		Double p = safeSolve(guess, hello, new NewtonRaphson());
 		Double q = singleSolve(guess, hello, new HalleyMod());
 		Double r = singleSolve(guess, hello, new HouseholderMod());
-		Double s = 0.0; //singleSolve(guess, hello, new W4NewtonRaphson(0.5));
+		Double s = safeSolve(guess, hello, new W4NewtonRaphson(0.5));
 		Double t = singleSolve(guess, hello, new DecompositionII());
 		
 		println(  p.toString()+", "
@@ -42,6 +44,15 @@ public class Find{
 		return singleSolve(xCur, f, iteration, 0);
 	}
 	
+	public static Double safeSolve(Double xCur, Func f, ItMe iteration){
+		try{
+			return singleSolve(xCur, f, iteration);
+		}catch(Exception e){
+			System.out.println(e);
+			return 0.0;
+		}
+	}
+	
 	public static Double singleSolve(Double xCur, Func f, ItMe iteration, int depth) throws ArithmeticException{
 		// TODO: implement HashMap to avoid calculating the same value twice. 
 		// find the next one
@@ -51,11 +62,9 @@ public class Find{
 		// determine if a better value is needed
 		boolean noImprovement = Math.abs(xNex - xCur) < stoppingCriteria;
 		boolean isClose = Math.abs(f.evaluate(xNex)) < stoppingCriteria;
-		boolean hasDiverged = depth >= Math.pow(10,3);
+		boolean hasDiverged = depth >= Math.pow(10,4);
 		if(hasDiverged){
 			throw new ArithmeticException("Diverged");
-			//println(Integer.toString(depth));
-			//return xNex;
 		}
 		
 		if(noImprovement || isClose){ // other works do not specify if this is AND or OR.
@@ -66,11 +75,21 @@ public class Find{
 		}
 	}
 	
-	public static Double[] completeSolve(Func f, ItMe iteration){
+	// Sennning, J. 2007 p. 3
+	public static Double convergenceRate(Double mTwo,Double mOne, Double pZero, Double pOne){
+		// approximates the convergence rate of a method given 4 entries in the sequence.
+		// TODO: implement this
+		Double a = Math.log(Math.abs(pOne-pZero)/(pZero-mOne));
+		Double b = Math.log(Math.abs(pZero-mOne)/(mOne-mTwo));
+		return a/b;
+	}
+	
+	public static Double singleSolve(String filePath){
 		// TODO: implement this
 		return null;
 	}
 	
+
 	public static ArrayList<Double> plot(Func f, Double jumpLength, Double min, Double max ){
 		ArrayList<Double> temp = new ArrayList<Double>();
 		
@@ -109,14 +128,14 @@ class NewtonRaphson implements ItMe{
 
 class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method without second derivatives for nonlinear equation
 	HalleyMod(){}
-	
+
 	public Double next(Double x, Func f){
 	//Double x;
-	Double fx  = f.evaluate(x); 
-	Double fpx = f.differentiate().evaluate(x);
-	Double y   = x - ((fx)/(fpx));
-	Double fy  = f.evaluate(y);
-	Double fpy = f.differentiate().evaluate(y);
+	Double fx  =  f.evaluate(x); 
+	Double fpx =  f.differentiate().evaluate(x);
+	Double y   =  x - ((fx)/(fpx));
+	Double fy  =  f.evaluate(y);
+	Double fpy =  f.differentiate().evaluate(y);
 	
 	return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
 	}

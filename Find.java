@@ -78,10 +78,13 @@ public class Find{
 	// Sennning, J. 2007 p. 3
 	public static Double convergenceRate(Double mTwo,Double mOne, Double pZero, Double pOne){
 		// approximates the convergence rate of a method given 4 entries in the sequence.
-		// TODO: implement this
 		Double a = Math.log(Math.abs(pOne-pZero)/(pZero-mOne));
 		Double b = Math.log(Math.abs(pZero-mOne)/(mOne-mTwo));
 		return a/b;
+	}
+	public static Double convergenceRate(Double[] sequence){
+		int len = sequence.length;
+		return convergenceRate(sequence[len-4],sequence[len-3],sequence[len-2],sequence[len-1]);
 	}
 	
 	public static Double singleSolve(String filePath){
@@ -89,7 +92,6 @@ public class Find{
 		return null;
 	}
 	
-
 	public static ArrayList<Double> plot(Func f, Double jumpLength, Double min, Double max ){
 		ArrayList<Double> temp = new ArrayList<Double>();
 		
@@ -170,7 +172,6 @@ class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional
 }
 
 class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
-	
 	public Double next(Double x, Func f){
 	//Double x;
 	Double fx  = f.evaluate(x); 
@@ -180,9 +181,35 @@ class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Ne
 	Double fpy = f.differentiate().evaluate(y);
 		
 		return x- fx/fpx -2*(fy/fpx) + (fy*fpy)/(fpx*fpx);
+	}
+}
+
+class VariantNewtonsMethod implements ItMe{ // Weerakoon, S.: A variant of Newton's method with accelerated third-order convergence
+	VariantNewtonsMethod(){}
+	
+	public Double next(Double x, Func f){
+		Double fx  = f.evaluate(x); 
+		Double fpx = f.differentiate().evaluate(x);
+		Double y   = x - ((fx)/(fpx)); // called x* in this article.
+		
+		Double fpy = f.differentiate().evaluate(y);
+		
+		return x- (2*fx)/(fpx + fpy);
+	}
+}
+
+class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder method free from second derivatives...
+	// third order convergence, but does not compute f''(x)
+	public Double next(Double x, Func f){
+		Double fx  = f.evaluate(x); 
+		Double fpx = f.differentiate().evaluate(x);
+		Double y   = x - ((fx)/(fpx));
+		Double fy  = f.evaluate(y);
+		Double fpy = f.differentiate().evaluate(y);
+		
+		return y - ((fy)/(fpy)) * (1- (fpy*fpx*fy - fpx*fpx*fx)/(2*fpy*fpy*fx));
 		
 	}
-	
 }
 
 class Poly implements Func{

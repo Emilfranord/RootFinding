@@ -1,4 +1,5 @@
 import java.lang.Math; 
+import static java.lang.Math.pow;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -7,27 +8,32 @@ import java.util.HashMap;
 public class Find{
 	//String[] input;
 	static Double stoppingCriteria = Math.pow(10,-15);
+	static ArrayList<Double> visitedXValues = new ArrayList<Double>(); 
 	
 	public static void main(String[] args){
 		//Poly hello = new Poly("8:6 7:4 -10:0");
 		Poly hello = new Poly("1:5 -56:4 1249:3 -13786:2 75348:1 -163880:0");
 		
 		println(hello.toString());
+		println(hello.toString("latex"));
 		
-		Double guess = 9.5;
+		Double guess =19.1;
 		
 		println("Guess at " + guess.toString());
 		Double p = safeSolve(guess, hello, new NewtonRaphson());
-		Double q = singleSolve(guess, hello, new HalleyMod());
-		Double r = singleSolve(guess, hello, new HouseholderMod());
+		Double q = safeSolve(guess, hello, new HalleyMod());
+		Double r = safeSolve(guess, hello, new HouseholderMod());
 		Double s = safeSolve(guess, hello, new W4NewtonRaphson(0.5));
-		Double t = singleSolve(guess, hello, new DecompositionII());
+		Double t = safeSolve(guess, hello, new DecompositionII());
+		Double u = safeSolve(guess, hello, new VariantNewtonsMethod());
+		Double v = safeSolve(guess, hello, new improvedHouseholder());
 		
-		println(  p.toString()+", "
-				+ q.toString()+", " 
-				+ r.toString()+", " 
-				+ s.toString()+", " 
-				+ t.toString());
+		
+		//println(  p.toString()+", "
+		//		+ q.toString()+", " 
+		//		+ r.toString()+", " 
+		//		+ s.toString()+", " 
+		//		+ t.toString());
 		
 		println("Ended");
 	}
@@ -54,10 +60,15 @@ public class Find{
 	}
 	
 	public static Double singleSolve(Double xCur, Func f, ItMe iteration, int depth) throws ArithmeticException{
-		// TODO: implement HashMap to avoid calculating the same value twice. 
 		// find the next one
 		Double xNex = iteration.next(xCur, f);
 		depth++;
+		
+		if(visitedXValues.contains(xNex)){
+			throw new ArithmeticException("Non-converging cycle");
+		}
+		
+		visitedXValues.add(xNex);
 		
 		// determine if a better value is needed
 		boolean noImprovement = Math.abs(xNex - xCur) < stoppingCriteria;
@@ -67,8 +78,9 @@ public class Find{
 			throw new ArithmeticException("Diverged");
 		}
 		
-		if(noImprovement || isClose){ // other works do not specify if this is AND or OR.
-			println(Integer.toString(depth)); // this indicates the quality of the method
+		if(noImprovement || isClose){
+			println("Root: x = " +  Double.toString(xNex) + ", Steps: " + Integer.toString(depth)); // depth indicates the quality of the method
+			visitedXValues.clear();
 			return xNex;
 		}else{
 			return singleSolve(xNex, f, iteration, depth);
@@ -84,7 +96,7 @@ public class Find{
 	}
 	public static Double convergenceRate(Double[] sequence){
 		int len = sequence.length;
-		return convergenceRate(sequence[len-4],sequence[len-3],sequence[len-2],sequence[len-1]);
+		return convergenceRate(sequence[len-4], sequence[len-3], sequence[len-2], sequence[len-1]);
 	}
 	
 	public static Double singleSolve(String filePath){
@@ -117,7 +129,7 @@ interface Func{
 
 interface ItMe{ // Iterative method
 	public Double next(Double x, Func f);
-	// Turn x_n to x_n+1
+	// Find x_n+1 given x_n 
 }
 
 class NewtonRaphson implements ItMe{
@@ -132,12 +144,12 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 	HalleyMod(){}
 
 	public Double next(Double x, Func f){
-	//Double x;
-	Double fx  =  f.evaluate(x); 
-	Double fpx =  f.differentiate().evaluate(x);
+	Double fx  =  f.evaluate(x);
+	Func fp = f.differentiate();
+	Double fpx =  fp.evaluate(x);
 	Double y   =  x - ((fx)/(fpx));
 	Double fy  =  f.evaluate(y);
-	Double fpy =  f.differentiate().evaluate(y);
+	Double fpy =  fp.evaluate(y);
 	
 	return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
 	}
@@ -149,8 +161,10 @@ class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder itera
 	public Double next(Double x, Func f){
 		Double y = new NewtonRaphson().next(x, f);
 		Double fy = f.evaluate(y); 
-		Double fpy = f.differentiate().evaluate(y);
-		Double fppy = f.differentiate().differentiate().evaluate(y);
+		Func fp = f.differentiate();
+		Func fpp = fp.differentiate();
+		Double fpy = fp.evaluate(y);
+		Double fppy = fpp.evaluate(y);
 		
 		return y - (fy / fpy) - ((fy*fy*fppy)/(2*fpy*fpy*fpy));
 	}
@@ -173,7 +187,6 @@ class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional
 
 class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
 	public Double next(Double x, Func f){
-	//Double x;
 	Double fx  = f.evaluate(x); 
 	Double fpx = f.differentiate().evaluate(x);
 	Double y   = x - ((fx)/(fpx));
@@ -199,7 +212,7 @@ class VariantNewtonsMethod implements ItMe{ // Weerakoon, S.: A variant of Newto
 }
 
 class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder method free from second derivatives...
-	// third order convergence, but does not compute f''(x)
+	// third order convergence, but does not need to find f''(x)
 	public Double next(Double x, Func f){
 		Double fx  = f.evaluate(x); 
 		Double fpx = f.differentiate().evaluate(x);
@@ -212,8 +225,43 @@ class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder metho
 	}
 }
 
+class improvedHouseholderNumerical implements ItMe{
+	
+	private Double numericalDerivative(Double x, Func f){
+		// Calculates f'(x) for a specific x, avoiding analytical derivatives and its rules.
+		// TODO: Implement this
+		double deltaX;
+
+		for (int exponent = 0; exponent< 32; exponent++) {
+			deltaX = pow(10.0, -exponent);
+			double numericalValue = (f.evaluate(x+deltaX)- f.evaluate(x))/(deltaX);
+
+			if (numericalValue == 0.0) { 
+				// Testing has shown that the most accurate approximation is found
+				// by letting deltaX be 100 times bigger, than when the fraction is equal to zero
+				exponent--;
+				exponent--;
+				deltaX = pow(10.0, -exponent);
+				return (f.evaluate(x+deltaX)- f.evaluate(x))/(deltaX);
+			}
+		}
+		return  0.0;
+	}
+	
+	public Double next(Double x, Func f){
+		Double fx  = f.evaluate(x); 
+		Double fpx = numericalDerivative(x,f);
+		Double y   = x - ((fx)/(fpx));
+		Double fy  = f.evaluate(y);
+		Double fpy = numericalDerivative(y,f);
+		
+		return y - ((fy)/(fpy)) * (1- (fpy*fpx*fy - fpx*fpx*fx)/(2*fpy*fpy*fx));
+	}
+}
+
+
 class Poly implements Func{
-	public PolyElement[] elements;
+	protected PolyElement[] elements;
 	
 	public Poly(String input){
 		String[] splitInp = input.split(" ");
@@ -249,7 +297,6 @@ class Poly implements Func{
 	}
 	
 	public String toString(){
-		// TODO: make LaTeX variant
 		StringBuilder temp = new StringBuilder();
 		boolean first = true;
 		for(PolyElement q :elements){
@@ -263,11 +310,30 @@ class Poly implements Func{
 		}
 		return temp.toString();
 	}
+	
+	public String toString(String type){
+		if(!type.equals("latex")){
+			return this.toString();
+		}
+		StringBuilder temp = new StringBuilder();
+		boolean first = true;
+		for(PolyElement q :elements){
+			if (q.coefficient >=0){
+				if (!first){
+					temp.append("+");
+				}
+			}
+			temp.append(q.toString("latex"));
+			first = false;
+		}
+		return temp.toString();
+	}
+	
 }
 
 class PolyElement implements Func{
-	public Double coefficient;
-	public int exponent;
+	protected Double coefficient;
+	protected int exponent;
 	
 	PolyElement(Double co, int ex){
 		this.coefficient = co;

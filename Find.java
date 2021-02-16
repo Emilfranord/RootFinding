@@ -13,33 +13,17 @@ public class Find{
 	static ArrayList<Double> visitedXValues = new ArrayList<Double>(); 
 	
 	public static void main(String[] args){
-		//Poly hello = new Poly("8:6 7:4 -10:0");
-		//Poly hello = new Poly("1:5 -56:4 1249:3 -13786:2 75348:1 -163880:0");
-		
-		//println(hello.toString());
-		//println(hello.toString("latex"));
-		
-		//Double guess =19.1;
-		
-		//println("Guess at " + guess.toString());
-		//solveManyMethods(guess, hello);
-		
-		//println("solve from file:");
-		//solveFile("test.txt");
-		
-		println("solve from file:");
+		println("Rootfinding from file:");
 		solveFile(args[0]);
-
-		
 		println("Ended");
 	}
 	
 	public static long factorial(int n){ // https://www.baeldung.com/java-calculate-factorial
-	    long fact = 1;
+	    long output = 1;
 		for (int i = 2; i <= n; i++) {
-			fact = fact * i;
+			output = output * i;
 		}
-		return fact;
+		return output;
 	}
 	
 	public static Double safeSolve(Double xCur, Func f, ItMe iteration){
@@ -52,7 +36,7 @@ public class Find{
 	}
 	
 	public static Double singleSolve(Double xCur, Func f, ItMe iteration, int depth) throws ArithmeticException{
-		// find the next one
+		// find the next approximation
 		Double xNex = iteration.next(xCur, f);
 		depth++;
 		
@@ -96,13 +80,12 @@ public class Find{
 
 		Double[] roots = new Double[methods.length];
 		
-		
 		for(int i = 0; i<methods.length ; i++){
 			roots[i]= safeSolve(xCur, f, methods[i]);
-			
+			println("Found using: "+methods[i].toString()); 
+			// this is not a good way to go about it. 
 		}
 		return roots;
-		
 	}
 	
 	// Sennning, J. 2007 p. 3
@@ -134,7 +117,6 @@ public class Find{
 		
 		return solveManyMethods(xStart, f);
 	}
-
 
 	public static ArrayList<Double> plot(Func f, Double jumpLength, Double min, Double max ){
 		ArrayList<Double> temp = new ArrayList<Double>();
@@ -176,14 +158,14 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 	HalleyMod(){}
 
 	public Double next(Double x, Func f){
-	Double fx  =  f.evaluate(x);
-	Func fp = f.differentiate();
-	Double fpx =  fp.evaluate(x);
-	Double y   =  x - ((fx)/(fpx));
-	Double fy  =  f.evaluate(y);
-	Double fpy =  fp.evaluate(y);
+		Double fx  =  f.evaluate(x);
+		Func fp = f.differentiate();
+		Double fpx =  fp.evaluate(x);
+		Double y   =  x - ((fx)/(fpx));
+		Double fy  =  f.evaluate(y);
+		Double fpy =  fp.evaluate(y);
 	
-	return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
+		return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
 	}
 }
 
@@ -203,7 +185,7 @@ class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder itera
 }
 
 class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional root-finding scheme for nonlinear systems of equations
-	private Double damper; // if this is unchanged, it is indentical to NewtonRaphson
+	private Double damper; // if this is unchanged, it is indentical to Newton-Raphson
 	
 	W4NewtonRaphson(Double damp){
 		this.damper = damp;
@@ -219,11 +201,12 @@ class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional
 
 class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
 	public Double next(Double x, Func f){
-	Double fx  = f.evaluate(x); 
-	Double fpx = f.differentiate().evaluate(x);
+	Double fx  = f.evaluate(x);
+	Func fp = f.differentiate();
+	Double fpx = fp.evaluate(x);
 	Double y   = x - ((fx)/(fpx));
 	Double fy  = f.evaluate(y);
-	Double fpy = f.differentiate().evaluate(y);
+	Double fpy = fp.evaluate(y);
 		
 		return x- fx/fpx -2*(fy/fpx) + (fy*fpy)/(fpx*fpx);
 	}
@@ -234,10 +217,10 @@ class VariantNewtonsMethod implements ItMe{ // Weerakoon, S.: A variant of Newto
 	
 	public Double next(Double x, Func f){
 		Double fx  = f.evaluate(x); 
-		Double fpx = f.differentiate().evaluate(x);
-		Double y   = x - ((fx)/(fpx)); // called x* in this article.
-		
-		Double fpy = f.differentiate().evaluate(y);
+		Func fp = f.differentiate();
+		Double fpx = fp.evaluate(x);
+		Double y   = x - ((fx)/(fpx)); // called x* in the article.
+		Double fpy = fp.evaluate(y);
 		
 		return x- (2*fx)/(fpx + fpy);
 	}
@@ -247,13 +230,13 @@ class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder metho
 	// third order convergence, but does not need to find f''(x)
 	public Double next(Double x, Func f){
 		Double fx  = f.evaluate(x); 
-		Double fpx = f.differentiate().evaluate(x);
+		Func fp = f.differentiate();
+		Double fpx = fp.evaluate(x);
 		Double y   = x - ((fx)/(fpx));
 		Double fy  = f.evaluate(y);
-		Double fpy = f.differentiate().evaluate(y);
+		Double fpy = fp.evaluate(y);
 		
 		return y - ((fy)/(fpy)) * (1- (fpy*fpx*fy - fpx*fpx*fx)/(2*fpy*fpy*fx));
-		
 	}
 }
 

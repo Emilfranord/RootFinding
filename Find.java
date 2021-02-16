@@ -2,6 +2,8 @@ import java.lang.Math;
 import static java.lang.Math.pow;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.io.File;
 
 // use flag: -Xss8m, if java throws a stackoverflow
 
@@ -12,21 +14,22 @@ public class Find{
 	
 	public static void main(String[] args){
 		//Poly hello = new Poly("8:6 7:4 -10:0");
-		Poly hello = new Poly("1:5 -56:4 1249:3 -13786:2 75348:1 -163880:0");
+		//Poly hello = new Poly("1:5 -56:4 1249:3 -13786:2 75348:1 -163880:0");
 		
-		println(hello.toString());
-		println(hello.toString("latex"));
+		//println(hello.toString());
+		//println(hello.toString("latex"));
 		
-		Double guess =19.1;
+		//Double guess =19.1;
 		
-		println("Guess at " + guess.toString());
-		solveManyMethods(guess, hello);
+		//println("Guess at " + guess.toString());
+		//solveManyMethods(guess, hello);
 		
-		//println(  p.toString()+", "
-		//		+ q.toString()+", " 
-		//		+ r.toString()+", " 
-		//		+ s.toString()+", " 
-		//		+ t.toString());
+		//println("solve from file:");
+		//solveFile("test.txt");
+		
+		println("solve from file:");
+		solveFile(args[0]);
+
 		
 		println("Ended");
 	}
@@ -87,6 +90,7 @@ public class Find{
 							new W4NewtonRaphson(0.5),
 							new DecompositionII(), 
 							new VariantNewtonsMethod(), 
+							new improvedHouseholder(),
 							new improvedHouseholderNumerical()
 						};
 
@@ -113,11 +117,25 @@ public class Find{
 		return convergenceRate(sequence[len-4], sequence[len-3], sequence[len-2], sequence[len-1]);
 	}
 	
-	public static Double solveFile(String filePath){
-		// TODO: implement this
-		return null;
+	public static Double[] solveFile(String filePath){
+		Scanner sr;
+		try{
+			sr = new Scanner(new File(filePath)).useDelimiter("\n");
+		} catch(Exception e){
+			return null;
+		}
+		
+		String line = sr.next();
+		String[] segmentation = line.split(",");
+		
+		Double xStart = Double.parseDouble(segmentation[1]);
+		Func f = new Poly(segmentation[0]);
+		println("The function in the file is: "+f.toString());
+		
+		return solveManyMethods(xStart, f);
 	}
-	
+
+
 	public static ArrayList<Double> plot(Func f, Double jumpLength, Double min, Double max ){
 		ArrayList<Double> temp = new ArrayList<Double>();
 		

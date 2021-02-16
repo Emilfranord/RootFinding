@@ -82,7 +82,7 @@ public class Find{
 		
 		for(int i = 0; i<methods.length ; i++){
 			roots[i]= safeSolve(xCur, f, methods[i]);
-			println("Found using: "+methods[i].toString()); 
+			println("Found using: "+methods[i].toString() + "\n"); 
 			// this is not a good way to go about it. 
 		}
 		return roots;
@@ -157,11 +157,11 @@ class NewtonRaphson implements ItMe{
 class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method without second derivatives for nonlinear equation
 	HalleyMod(){}
 
-	public Double next(Double x, Func f){
+	public Double next(Double x, Func f){ // amount of calculations: 5*n + 2, where n = # of elements in the polyomial
 		Double fx  =  f.evaluate(x);
 		Func fp = f.differentiate();
 		Double fpx =  fp.evaluate(x);
-		Double y   =  x - ((fx)/(fpx));
+		Double y   =  new NewtonRaphson().next(x, f);
 		Double fy  =  f.evaluate(y);
 		Double fpy =  fp.evaluate(y);
 	

@@ -20,14 +20,7 @@ public class Find{
 		Double guess =19.1;
 		
 		println("Guess at " + guess.toString());
-		Double p = safeSolve(guess, hello, new NewtonRaphson());
-		Double q = safeSolve(guess, hello, new HalleyMod());
-		Double r = safeSolve(guess, hello, new HouseholderMod());
-		Double s = safeSolve(guess, hello, new W4NewtonRaphson(0.5));
-		Double t = safeSolve(guess, hello, new DecompositionII());
-		Double u = safeSolve(guess, hello, new VariantNewtonsMethod());
-		Double v = safeSolve(guess, hello, new improvedHouseholder());
-		
+		solveManyMethods(guess, hello);
 		
 		//println(  p.toString()+", "
 		//		+ q.toString()+", " 
@@ -44,10 +37,6 @@ public class Find{
 			fact = fact * i;
 		}
 		return fact;
-	}
-	
-	public static Double singleSolve(Double xCur, Func f, ItMe iteration){
-		return singleSolve(xCur, f, iteration, 0);
 	}
 	
 	public static Double safeSolve(Double xCur, Func f, ItMe iteration){
@@ -87,6 +76,31 @@ public class Find{
 		}
 	}
 	
+	public static Double singleSolve(Double xCur, Func f, ItMe iteration){
+		return singleSolve(xCur, f, iteration, 0);
+	}
+	
+	public static Double[] solveManyMethods(Double xCur, Func f){
+		ItMe[] methods = {	new NewtonRaphson(), 
+							new HalleyMod(), 
+							new HouseholderMod(),
+							new W4NewtonRaphson(0.5),
+							new DecompositionII(), 
+							new VariantNewtonsMethod(), 
+							new improvedHouseholderNumerical()
+						};
+
+		Double[] roots = new Double[methods.length];
+		
+		
+		for(int i = 0; i<methods.length ; i++){
+			roots[i]= safeSolve(xCur, f, methods[i]);
+			
+		}
+		return roots;
+		
+	}
+	
 	// Sennning, J. 2007 p. 3
 	public static Double convergenceRate(Double mTwo,Double mOne, Double pZero, Double pOne){
 		// approximates the convergence rate of a method given 4 entries in the sequence.
@@ -99,7 +113,7 @@ public class Find{
 		return convergenceRate(sequence[len-4], sequence[len-3], sequence[len-2], sequence[len-1]);
 	}
 	
-	public static Double singleSolve(String filePath){
+	public static Double solveFile(String filePath){
 		// TODO: implement this
 		return null;
 	}
@@ -226,7 +240,6 @@ class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder metho
 }
 
 class improvedHouseholderNumerical implements ItMe{
-	
 	private Double numericalDerivative(Double x, Func f){
 		// Calculates f'(x) for a specific x, avoiding analytical derivatives and its rules.
 		// TODO: Implement this

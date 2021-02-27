@@ -72,7 +72,8 @@ public class Find{
 							new HalleyMod(), 
 							new HouseholderMod(),
 							new W4NewtonRaphson(0.5),
-							new DecompositionII(), 
+							new DecompositionII(),
+							new DecompositionIII(),
 							new VariantNewtonsMethod(), 
 							new improvedHouseholder(),
 							new improvedHouseholderNumerical()
@@ -201,14 +202,29 @@ class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional
 
 class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
 	public Double next(Double x, Func f){
-	Double fx  = f.evaluate(x);
-	Func fp = f.differentiate();
-	Double fpx = fp.evaluate(x);
-	Double y   = x - ((fx)/(fpx));
-	Double fy  = f.evaluate(y);
-	Double fpy = fp.evaluate(y);
+		Double fx  = f.evaluate(x);
+		Func fp = f.differentiate();
+		Double fpx = fp.evaluate(x);
+		Double y   = x - ((fx)/(fpx));
+		Double fy  = f.evaluate(y);
+		Double fpy = fp.evaluate(y);
 		
 		return x- fx/fpx -2*(fy/fpx) + (fy*fpy)/(fpx*fpx);
+	}
+}
+
+class DecompositionIII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
+	public Double next(Double x, Func f){
+		Double fx  = f.evaluate(x);
+		Func fp = f.differentiate();
+		Func fpp = fp.differentiate();
+		Double fpx = fp.evaluate(x);
+		Double y   = x - ((fx)/(fpx));
+		Double fy  = f.evaluate(y);
+		Double fpy = fp.evaluate(y);		
+		Double fppy = fpp.evaluate(y);
+		
+		return x - (fx)/(fpx) - (3.0*fy)/(fpx) + (3.0*fy*fpy)/(fpx*fpx) - (0.5 * (fy * (fy*fppy+2.0*fpy*fpy)))/(fpy*fpy*fpy);
 	}
 }
 

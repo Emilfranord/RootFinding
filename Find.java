@@ -9,7 +9,7 @@ import java.io.File;
 
 public class Find{
 	//String[] input;
-	static Double stoppingCriteria = Math.pow(10,-15); 
+	static Double stoppingCriteria = Math.pow(10,-15); //Math.sqrt(Math.pow(10,-16)); 
 	// This should be looked at. It does not function well with with roots that are order of magnitudes diffrent from 1, for instance 100 or 1000
 	static ArrayList<Double> visitedXValues = new ArrayList<Double>(); 
 	
@@ -43,7 +43,7 @@ public class Find{
 		
 		if(visitedXValues.contains(xNex)){
 			//println(xNex.toString());
-			throw new ArithmeticException("Non-converging cycle");
+			throw new ArithmeticException("Non-converging cycle, cycle enterede at: x = "+xNex.toString());
 		}
 		
 		visitedXValues.add(xNex);

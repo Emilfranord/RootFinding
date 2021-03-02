@@ -9,8 +9,7 @@ import java.io.File;
 
 public class Find{
 	//String[] input;
-	static Double stoppingCriteria = Math.pow(10,-15); //Math.sqrt(Math.pow(10,-16)); 
-	// This should be looked at. It does not function well with with roots that are order of magnitudes diffrent from 1, for instance 100 or 1000
+	static Double stoppingCriteria = Math.pow(10,-15); //Math.sqrt(1.11 * Math.pow(10,-16)); 
 	static ArrayList<Double> visitedXValues = new ArrayList<Double>(); 
 	
 	public static void main(String[] args){
@@ -41,9 +40,9 @@ public class Find{
 		Double xNex = iteration.next(xCur, f);
 		depth++;
 		
-		if(visitedXValues.contains(xNex)){
+		if(visitedXValues.contains(xNex) && Math.abs(f.evaluate(xNex)) > Math.sqrt(stoppingCriteria)){
 			//println(xNex.toString());
-			throw new ArithmeticException("Non-converging cycle, cycle enterede at: x = "+xNex.toString());
+			//throw new ArithmeticException("Non-converging cycle, x = "+xNex.toString() + ", Steps: " + depth);
 		}
 		
 		visitedXValues.add(xNex);
@@ -84,9 +83,9 @@ public class Find{
 		Double[] roots = new Double[methods.length];
 		
 		for(int i = 0; i<methods.length ; i++){
-			roots[i]= safeSolve(xCur, f, methods[i]);
+			roots[i] = safeSolve(xCur, f, methods[i]);
 			println("Found using: "+methods[i].toString() + "\n"); 
-			// this is not a good way to go about it. 
+			// Misusing the default toString method is not a good way to print the information. 
 		}
 		return roots;
 	}
@@ -116,7 +115,8 @@ public class Find{
 		
 		Double xStart = Double.parseDouble(segmentation[1]);
 		Func f = new Poly(segmentation[0]);
-		println("The function in the file is: "+f.toString());
+		println("The function in the file is: "+f.toString()+"\n");
+		
 		
 		return solveManyMethods(xStart, f);
 	}
@@ -158,13 +158,17 @@ class NewtonRaphson implements ItMe{
 }
 
 class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method without second derivatives for nonlinear equation
-	HalleyMod(){}
+	private NewtonRaphson nr;
+	
+	HalleyMod(){
+		nr = new NewtonRaphson();
+	}
 
 	public Double next(Double x, Func f){ // amount of calculations: 5*n + 2, where n = # of elements in the polyomial
 		Double fx  =  f.evaluate(x);
 		Func fp = f.differentiate();
 		Double fpx =  fp.evaluate(x);
-		Double y   =  new NewtonRaphson().next(x, f);
+		Double y   =  nr.next(x, f);
 		Double fy  =  f.evaluate(y);
 		Double fpy =  fp.evaluate(y);
 	

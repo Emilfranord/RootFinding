@@ -155,6 +155,10 @@ class NewtonRaphson implements ItMe{
 	public Double next(Double x, Func f){
 		return x - ((f.evaluate(x))/(f.differentiate().evaluate(x)));
 	}
+
+	public String toString(){
+		return "NewtonRaphson";
+	}
 }
 
 class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method without second derivatives for nonlinear equation
@@ -174,6 +178,9 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 	
 		return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
 	}
+	public String toString(){
+		return "HalleyMod";
+	}
 }
 
 class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder iterative method for nonlinear equations
@@ -188,6 +195,10 @@ class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder itera
 		Double fppy = fpp.evaluate(y);
 		
 		return y - (fy / fpy) - ((fy*fy*fppy)/(2*fpy*fpy*fpy));
+	}
+	
+	public String toString(){
+		return "HouseholderMod";
 	}
 }
 
@@ -204,6 +215,10 @@ class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional
 	public Double next(Double x, Func f){
 		return x - damper * ((f.evaluate(x))/(f.differentiate().evaluate(x)));
 	}
+	
+	public String toString(){
+		return "W4NewtonRaphson";
+	}
 }
 
 class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
@@ -216,6 +231,10 @@ class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Ne
 		Double fpy = fp.evaluate(y);
 		
 		return x- fx/fpx -2*(fy/fpx) + (fy*fpy)/(fpx*fpx);
+	}
+	
+	public String toString(){
+		return "DecompositionII";
 	}
 }
 
@@ -232,6 +251,9 @@ class DecompositionIII implements ItMe{ //Chun, C.:Iterative methods improving N
 		
 		return x - (fx)/(fpx) - (3.0*fy)/(fpx) + (3.0*fy*fpy)/(fpx*fpx) - (0.5 * (fy * (fy*fppy+2.0*fpy*fpy)))/(fpy*fpy*fpy);
 	}
+	public String toString(){
+		return "DecompositionIII";
+	}
 }
 
 class VariantNewtonsMethod implements ItMe{ // Weerakoon, S.: A variant of Newton's method with accelerated third-order convergence
@@ -246,6 +268,9 @@ class VariantNewtonsMethod implements ItMe{ // Weerakoon, S.: A variant of Newto
 		
 		return x- (2*fx)/(fpx + fpy);
 	}
+	public String toString(){
+		return "VariantNewtonsMethod";
+	}
 }
 
 class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder method free from second derivatives...
@@ -259,6 +284,10 @@ class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder metho
 		Double fpy = fp.evaluate(y);
 		
 		return y - ((fy)/(fpy)) * (1- (fpy*fpx*fy - fpx*fpx*fx)/(2*fpy*fpy*fx));
+	}
+	
+	public String toString(){
+		return "ImprovedHouseholder";
 	}
 }
 
@@ -292,6 +321,10 @@ class improvedHouseholderNumerical implements ItMe{
 		Double fpy = numericalDerivative(y,f);
 		
 		return y - ((fy)/(fpy)) * (1- (fpy*fpx*fy - fpx*fpx*fx)/(2*fpy*fpy*fx));
+	}
+	
+	public String toString(){
+		return "improvedHouseholderNumerical";
 	}
 }
 

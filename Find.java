@@ -56,7 +56,8 @@ public class Find{
 		}
 		
 		if(noImprovement || isClose){
-			println("Root: x = " +  Double.toString(xNex) + ", Steps: " + Integer.toString(depth)); // depth indicates the quality of the method
+			Double rate = convergenceRate(visitedXValues.toArray(new Double[0]));
+			println("Root: x = " +  Double.toString(xNex) + "\nValue: |f(x_n)| = " + Math.abs(f.evaluate(xNex)) + "\nSteps: " + Integer.toString(depth) + "\nConvergence rate: "+rate); 
 			visitedXValues.clear();
 			return xNex;
 		}else{
@@ -83,23 +84,28 @@ public class Find{
 		Double[] roots = new Double[methods.length];
 		
 		for(int i = 0; i<methods.length ; i++){
+			println("Algorithm: "+ methods[i].toString()); 
 			roots[i] = safeSolve(xCur, f, methods[i]);
-			println("Found using: "+methods[i].toString() + "\n"); 
-			// Misusing the default toString method is not a good way to print the information. 
+			println("");
 		}
 		return roots;
 	}
 	
 	// Sennning, J. 2007 p. 3
-	public static Double convergenceRate(Double mTwo,Double mOne, Double pZero, Double pOne){
+	public static Double convergenceRate(Double mTwo, Double mOne, Double pZero, Double pOne){
 		// approximates the convergence rate of a method given 4 entries in the sequence.
-		Double a = Math.log(Math.abs(pOne-pZero)/(pZero-mOne));
-		Double b = Math.log(Math.abs(pZero-mOne)/(mOne-mTwo));
+		Double a = Math.log(Math.abs((pOne-pZero)/(pZero-mOne)));
+		Double b = Math.log(Math.abs((pZero-mOne)/(mOne-mTwo)));
 		return a/b;
 	}
 	public static Double convergenceRate(Double[] sequence){
 		int len = sequence.length;
-		return convergenceRate(sequence[len-4], sequence[len-3], sequence[len-2], sequence[len-1]);
+		if (len >=4){
+			return convergenceRate(sequence[len-4], sequence[len-3], sequence[len-2], sequence[len-1]);
+		}else{
+			return -1.0;
+		}
+		
 	}
 	
 	public static Double[] solveFile(String filePath){

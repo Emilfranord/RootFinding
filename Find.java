@@ -294,9 +294,9 @@ class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder metho
 class improvedHouseholderNumerical implements ItMe{
 	private Double numericalDerivative(Double x, Func f){
 		// Calculates f'(x) for a specific x, avoiding analytical derivatives and its rules.
-		// TODO: Implement this
+		// Is significantly less accuret than an analytical solution 
 		double deltaX;
-
+		
 		for (int exponent = 0; exponent< 32; exponent++) {
 			deltaX = pow(10.0, -exponent);
 			double numericalValue = (f.evaluate(x+deltaX)- f.evaluate(x))/(deltaX);

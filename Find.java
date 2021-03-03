@@ -42,7 +42,7 @@ public class Find{
 		
 		if(visitedXValues.contains(xNex) && Math.abs(f.evaluate(xNex)) > Math.sqrt(stoppingCriteria)){
 			//println(xNex.toString());
-			//throw new ArithmeticException("Non-converging cycle, x = "+xNex.toString() + ", Steps: " + depth);
+			throw new ArithmeticException("Non-converging cycle"); // , "Non-converging cycle, x = "+xNex.toString() + ", Steps: " + depth
 		}
 		
 		visitedXValues.add(xNex);

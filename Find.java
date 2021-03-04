@@ -170,7 +170,7 @@ class NewtonRaphson implements ItMe{
 	}
 
 	public String toString(){
-		return "NewtonRaphson";
+		return "Newton-Raphson";
 	}
 }
 
@@ -192,7 +192,7 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 		return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
 	}
 	public String toString(){
-		return "HalleyMod";
+		return "Modified Halley";
 	}
 }
 
@@ -211,7 +211,7 @@ class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder itera
 	}
 	
 	public String toString(){
-		return "HouseholderMod";
+		return "Modified Householder";
 	}
 }
 
@@ -230,7 +230,7 @@ class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional
 	}
 	
 	public String toString(){
-		return "W4NewtonRaphson";
+		return "W4 method";
 	}
 }
 
@@ -247,7 +247,7 @@ class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Ne
 	}
 	
 	public String toString(){
-		return "DecompositionII";
+		return "Decomposition Method II";
 	}
 }
 
@@ -265,7 +265,7 @@ class DecompositionIII implements ItMe{ //Chun, C.:Iterative methods improving N
 		return x - (fx)/(fpx) - (3.0*fy)/(fpx) + (3.0*fy*fpy)/(fpx*fpx) - (0.5 * (fy * (fy*fppy+2.0*fpy*fpy)))/(fpy*fpy*fpy);
 	}
 	public String toString(){
-		return "DecompositionIII";
+		return "Decomposition Method III";
 	}
 }
 
@@ -282,7 +282,7 @@ class VariantNewtonsMethod implements ItMe{ // Weerakoon, S.: A variant of Newto
 		return x- (2*fx)/(fpx + fpy);
 	}
 	public String toString(){
-		return "VariantNewtonsMethod";
+		return "Variant of Newton's";
 	}
 }
 
@@ -300,7 +300,7 @@ class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder metho
 	}
 	
 	public String toString(){
-		return "ImprovedHouseholder";
+		return "New Householder method";
 	}
 }
 
@@ -337,7 +337,7 @@ class improvedHouseholderNumerical implements ItMe{
 	}
 	
 	public String toString(){
-		return "improvedHouseholderNumerical";
+		return "New Householder method with numerical derivatives";
 	}
 }
 

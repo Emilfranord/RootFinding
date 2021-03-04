@@ -61,10 +61,15 @@ public class Find{
 					"\nRoot: x = " +  Double.toString(xNex) + 
 					"\nValue: |f(x_n)| = " + Math.abs(f.evaluate(xNex)) + 
 					"\nSteps: " + Integer.toString(depth) + 
-					"\nConvergence rate: "+ rate +
-					"\n"
-					); 
+					"\nConvergence rate: "+ rate
+					);
+			if(f instanceof Counter){
+				Counter c = (Counter) f;
+				println("diff.+ eval.: "+Integer.toString(c.popCount()));
+			}
+			println("");
 			visitedXValues.clear();
+			
 			return xNex;
 		}else{
 			return singleSolve(xNex, f, iteration, depth);
@@ -125,7 +130,8 @@ public class Find{
 		String[] segmentation = line.split(",");
 		
 		Double xStart = Double.parseDouble(segmentation[1]);
-		Func f = new Poly(segmentation[0]);
+		Func f = new PolyWithCounter(segmentation[0]); 
+		//Func f = new Poly(segmentation[0]);
 		println("f(x): \n"+f.toString()+
 				"\nInitial value: x_0 = " + Double.toString(xStart) +
 				"\n"
@@ -181,7 +187,7 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 		nr = new NewtonRaphson();
 	}
 
-	public Double next(Double x, Func f){ // amount of calculations: 5*n + 2, where n = # of elements in the polyomial
+	public Double next(Double x, Func f){
 		Double fx  =  f.evaluate(x);
 		Func fp = f.differentiate();
 		Double fpx =  fp.evaluate(x);
@@ -458,3 +464,46 @@ class PolyElement implements Func{
 	}
 	
 }
+
+interface Counter{
+	public int popCount();
+}
+
+class PolyWithCounter extends Poly implements Func, Counter{
+	private int count;
+	
+	public PolyWithCounter(String input){
+		super(input);
+		this.count = 0;
+	}
+	
+	public PolyWithCounter(PolyElement[] input){
+		super(input);
+		this.count = 0;
+	}
+	
+	public int popCount(){
+		int tempCount = count;
+		this.count = 0;
+		return tempCount;
+	}
+	
+	public Double evaluate(Double x){
+		this.count++;
+		return super.evaluate(x);
+	}
+	
+	public Func differentiate(){
+		this.count++;
+		return super.differentiate();
+	}
+}
+
+
+
+
+
+
+
+
+

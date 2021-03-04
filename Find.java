@@ -57,7 +57,13 @@ public class Find{
 		
 		if(noImprovement || isClose){
 			Double rate = convergenceRate(visitedXValues.toArray(new Double[0]));
-			println("Root: x = " +  Double.toString(xNex) + "\nValue: |f(x_n)| = " + Math.abs(f.evaluate(xNex)) + "\nSteps: " + Integer.toString(depth) + "\nConvergence rate: "+rate); 
+			println("Algorithm: " + iteration.toString() + 
+					"\nRoot: x = " +  Double.toString(xNex) + 
+					"\nValue: |f(x_n)| = " + Math.abs(f.evaluate(xNex)) + 
+					"\nSteps: " + Integer.toString(depth) + 
+					"\nConvergence rate: "+ rate +
+					"\n"
+					); 
 			visitedXValues.clear();
 			return xNex;
 		}else{
@@ -83,10 +89,9 @@ public class Find{
 
 		Double[] roots = new Double[methods.length];
 		
-		for(int i = 0; i<methods.length ; i++){
-			println("Algorithm: "+ methods[i].toString()); 
+		for(int i = 0; i<methods.length ; i++){ 
 			roots[i] = safeSolve(xCur, f, methods[i]);
-			println("");
+			
 		}
 		return roots;
 	}
@@ -121,8 +126,10 @@ public class Find{
 		
 		Double xStart = Double.parseDouble(segmentation[1]);
 		Func f = new Poly(segmentation[0]);
-		println("The function in the file is: "+f.toString()+"\n");
-		
+		println("f(x): \n"+f.toString()+
+				"\nInitial value: x_0 = " + Double.toString(xStart) +
+				"\n"
+				);
 		
 		return solveManyMethods(xStart, f);
 	}

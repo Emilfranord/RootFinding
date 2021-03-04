@@ -132,7 +132,7 @@ public class Find{
 		Double xStart = Double.parseDouble(segmentation[1]);
 		Func f = new PolyWithCounter(segmentation[0]); 
 		//Func f = new Poly(segmentation[0]);
-		println("f(x): \n"+f.toString()+
+		println("f(x) = "+f.toString()+
 				"\nInitial value: x_0 = " + Double.toString(xStart) +
 				"\n"
 				);
@@ -204,7 +204,6 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 
 class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder iterative method for nonlinear equations
 	HouseholderMod(){}
-	
 	public Double next(Double x, Func f){
 		Double y = new NewtonRaphson().next(x, f);
 		Double fy = f.evaluate(y); 
@@ -352,6 +351,8 @@ class Poly implements Func{
 	protected PolyElement[] elements;
 	
 	public Poly(String input){
+		input = input.replace("^x", ":");
+		input = input.replace("x", ":1");
 		String[] splitInp = input.split(" ");
 		PolyElement[] temp = new PolyElement[splitInp.length];
 		
@@ -471,7 +472,7 @@ interface Counter{
 
 class PolyWithCounter extends Poly implements Func, Counter{
 	private int count;
-	
+
 	public PolyWithCounter(String input){
 		super(input);
 		this.count = 0;

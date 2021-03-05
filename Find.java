@@ -57,19 +57,31 @@ public class Find{
 		
 		if(noImprovement || isClose){
 			Double rate = convergenceRate(visitedXValues.toArray(new Double[0]));
-			println("Algorithm: " + iteration.toString() + 
-					"\nRoot: x = " +  Double.toString(xNex) + 
-					"\nValue: |f(x_n)| = " + Math.abs(f.evaluate(xNex)) + 
-					"\nSteps: " + Integer.toString(depth) + 
-					"\nConvergence rate: "+ rate
-					);
+			int pop = -1;
 			if(f instanceof Counter){
 				Counter c = (Counter) f;
-				println("diff.+ eval.: "+Integer.toString(c.popCount()));
+				//println("diff.+ eval.: "+Integer.toString(c.popCount()));
+				pop = c.popCount();
 			}
+			/*
+			println("Algorithm: " + iteration.toString() +
+					"\nSteps: " + Integer.toString(depth) +
+					"\nEval.+diff.: " + Integer.toString(pop) +
+					"\nConvergence rate: "+ rate //+
+					//"\nValue: |f(x_n)| = " + Math.abs(f.evaluate(xNex)) + 
+					//"\nRoot: x = " +  Double.toString(xNex)
+					);
 			println("");
-			visitedXValues.clear();
+			*/
 			
+			//String layout = "%s & $%s$ & $%s$ & $%f$ \\\\";
+			//layout = String.format(layout, iteration.toString(), Integer.toString(depth), Integer.toString(pop), rate);
+			String layout = "& $%s$ & $%s$ & $%f$";
+			layout = String.format(layout, Integer.toString(depth), Integer.toString(pop), rate);		
+
+			println(layout);
+			
+			visitedXValues.clear();
 			return xNex;
 		}else{
 			return singleSolve(xNex, f, iteration, depth);
@@ -81,10 +93,10 @@ public class Find{
 	}
 	
 	public static Double[] solveManyMethods(Double xCur, Func f){
-		ItMe[] methods = {	new NewtonRaphson(), 
+		ItMe[] methods = {	new NewtonRaphson(),
+							new W4NewtonRaphson(0.5),
 							new HalleyMod(), 
 							new HouseholderMod(),
-							new W4NewtonRaphson(0.5),
 							new DecompositionII(),
 							new DecompositionIII(),
 							new VariantNewtonsMethod(), 
@@ -94,9 +106,8 @@ public class Find{
 
 		Double[] roots = new Double[methods.length];
 		
-		for(int i = 0; i<methods.length ; i++){ 
+		for(int i = 0; i<methods.length ; i++){
 			roots[i] = safeSolve(xCur, f, methods[i]);
-			
 		}
 		return roots;
 	}

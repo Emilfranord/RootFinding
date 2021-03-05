@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.io.File;
 
-// use flag: -Xss8m, if java throws a stackoverflow
-
 public class Find{
-	//String[] input;
 	static Double stoppingCriteria = Math.pow(10,-15); //Math.sqrt(1.11 * Math.pow(10,-16)); 
 	static ArrayList<Double> visitedXValues = new ArrayList<Double>(); 
 	
@@ -16,14 +13,6 @@ public class Find{
 		println("Rootfinding from file:");
 		solveFile(args[0]);
 		println("Ended");
-	}
-	
-	public static long factorial(int n){ // https://www.baeldung.com/java-calculate-factorial
-	    long output = 1;
-		for (int i = 2; i <= n; i++) {
-			output = output * i;
-		}
-		return output;
 	}
 	
 	public static Double safeSolve(Double xCur, Func f, ItMe iteration){
@@ -34,6 +23,14 @@ public class Find{
 			return 0.0;
 		}
 	}
+	
+	public static Double expectQuadraticConvergence(Func f, Double xStart){
+		Func fp = f.differentiate();
+		Func fpp = fp.differentiate();
+		
+		return Math.abs(f.evaluate(xStart) * fpp.evaluate(xStart)) /(fp.evaluate(xStart)*fp.evaluate(xStart));
+	}
+	
 	
 	public static Double singleSolve(Double xCur, Func f, ItMe iteration, int depth) throws ArithmeticException{
 		// find the next approximation
@@ -97,7 +94,7 @@ public class Find{
 							new W4NewtonRaphson(0.5),
 							new HalleyMod(), 
 							new HouseholderMod(),
-							new DecompositionII(),
+							//new DecompositionII(), /* TODO: add back into system*/
 							new DecompositionIII(),
 							new VariantNewtonsMethod(), 
 							new improvedHouseholder(),
@@ -126,7 +123,6 @@ public class Find{
 		}else{
 			return -1.0;
 		}
-		
 	}
 	
 	public static Double[] solveFile(String filePath){
@@ -143,10 +139,13 @@ public class Find{
 		Double xStart = Double.parseDouble(segmentation[1]);
 		Func f = new PolyWithCounter(segmentation[0]); 
 		//Func f = new Poly(segmentation[0]);
+		String quadratic = Double.toString(expectQuadraticConvergence(f, xStart));
 		println("f(x) = "+f.toString()+
 				"\nInitial value: x_0 = " + Double.toString(xStart) +
+				"\nh(x) = " + quadratic + 
 				"\n"
 				);
+
 		
 		return solveManyMethods(xStart, f);
 	}
@@ -176,7 +175,7 @@ interface Func{
 
 interface ItMe{ // Iterative method
 	public Double next(Double x, Func f);
-	// Find x_n+1 given x_n 
+	// Find x_{n+1} given x_n 
 }
 
 class NewtonRaphson implements ItMe{
@@ -202,10 +201,9 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 		Double fx  =  f.evaluate(x);
 		Func fp = f.differentiate();
 		Double fpx =  fp.evaluate(x);
-		Double y   =  nr.next(x, f);
+		Double y   =  this.nr.next(x, f);
 		Double fy  =  f.evaluate(y);
 		Double fpy =  fp.evaluate(y);
-	
 		return y - ((2*fx*fy*fpy)/(2*fx*fpy*fpy - fpx*fpx*fy + fpx*fpy*fy));
 	}
 	public String toString(){
@@ -214,9 +212,13 @@ class HalleyMod implements ItMe{ // Noor et al.: A new modified Halley method wi
 }
 
 class HouseholderMod implements ItMe{ // Noor et al.: Modified Householder iterative method for nonlinear equations
-	HouseholderMod(){}
+	private NewtonRaphson nr;
+	
+	HouseholderMod(){
+		nr = new NewtonRaphson();
+	}
 	public Double next(Double x, Func f){
-		Double y = new NewtonRaphson().next(x, f);
+		Double y = this.nr.next(x, f);
 		Double fy = f.evaluate(y); 
 		Func fp = f.differentiate();
 		Func fpp = fp.differentiate();
@@ -251,11 +253,16 @@ class W4NewtonRaphson implements ItMe{ // The W4 method: a new multi-dimensional
 }
 
 class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
+	private NewtonRaphson nr;
+	DecompositionII(){
+		nr = new NewtonRaphson();
+	}
+	
 	public Double next(Double x, Func f){
 		Double fx  = f.evaluate(x);
 		Func fp = f.differentiate();
 		Double fpx = fp.evaluate(x);
-		Double y   = x - ((fx)/(fpx));
+		Double y   = this.nr.next(x, f);
 		Double fy  = f.evaluate(y);
 		Double fpy = fp.evaluate(y);
 		
@@ -268,12 +275,16 @@ class DecompositionII implements ItMe{ //Chun, C.:Iterative methods improving Ne
 }
 
 class DecompositionIII implements ItMe{ //Chun, C.:Iterative methods improving Newton's method by the decomposition method 
+	private NewtonRaphson nr;
+	DecompositionIII(){
+		nr = new NewtonRaphson();
+	}
 	public Double next(Double x, Func f){
 		Double fx  = f.evaluate(x);
 		Func fp = f.differentiate();
 		Func fpp = fp.differentiate();
 		Double fpx = fp.evaluate(x);
-		Double y   = x - ((fx)/(fpx));
+		Double y   = this.nr.next(x, f);
 		Double fy  = f.evaluate(y);
 		Double fpy = fp.evaluate(y);		
 		Double fppy = fpp.evaluate(y);
@@ -286,13 +297,16 @@ class DecompositionIII implements ItMe{ //Chun, C.:Iterative methods improving N
 }
 
 class VariantNewtonsMethod implements ItMe{ // Weerakoon, S.: A variant of Newton's method with accelerated third-order convergence
-	VariantNewtonsMethod(){}
+	private NewtonRaphson nr;
+	VariantNewtonsMethod(){
+		nr = new NewtonRaphson();
+	}
 	
 	public Double next(Double x, Func f){
 		Double fx  = f.evaluate(x); 
 		Func fp = f.differentiate();
 		Double fpx = fp.evaluate(x);
-		Double y   = x - ((fx)/(fpx)); // called x* in the article.
+		Double y   = this.nr.next(x, f);
 		Double fpy = fp.evaluate(y);
 		
 		return x- (2*fx)/(fpx + fpy);
@@ -304,11 +318,16 @@ class VariantNewtonsMethod implements ItMe{ // Weerakoon, S.: A variant of Newto
 
 class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder method free from second derivatives...
 	// third order convergence, but does not need to find f''(x)
+	private NewtonRaphson nr;
+	improvedHouseholder(){
+		nr = new NewtonRaphson();
+	}	
+	
 	public Double next(Double x, Func f){
 		Double fx  = f.evaluate(x); 
 		Func fp = f.differentiate();
 		Double fpx = fp.evaluate(x);
-		Double y   = x - ((fx)/(fpx));
+		Double y   = this.nr.next(x, f);
 		Double fy  = f.evaluate(y);
 		Double fpy = fp.evaluate(y);
 		
@@ -323,7 +342,7 @@ class improvedHouseholder implements ItMe{// Nazeer, W.: A new Householder metho
 class improvedHouseholderNumerical implements ItMe{
 	private Double numericalDerivative(Double x, Func f){
 		// Calculates f'(x) for a specific x, avoiding analytical derivatives and its rules.
-		// Is significantly less accuret than an analytical solution 
+		// Is significantly less accurate than an analytical solution, but it solves the problem 
 		double deltaX;
 		
 		for (int exponent = 0; exponent< 32; exponent++) {

@@ -39,7 +39,7 @@ public class Find{
 		
 		if(visitedXValues.contains(xNex) && Math.abs(f.evaluate(xNex)) > Math.sqrt(stoppingCriteria)){
 			//println(xNex.toString());
-			throw new ArithmeticException("Non-converging cycle"); // , "Non-converging cycle, x = "+xNex.toString() + ", Steps: " + depth
+			throw new ArithmeticException("Non-converging cycle");
 		}
 		
 		visitedXValues.add(xNex);
@@ -60,24 +60,24 @@ public class Find{
 				//println("diff.+ eval.: "+Integer.toString(c.popCount()));
 				pop = c.popCount();
 			}
-			/*
+			
 			println("Algorithm: " + iteration.toString() +
 					"\nSteps: " + Integer.toString(depth) +
 					"\nEval.+diff.: " + Integer.toString(pop) +
-					"\nConvergence rate: "+ rate //+
-					//"\nValue: |f(x_n)| = " + Math.abs(f.evaluate(xNex)) + 
-					//"\nRoot: x = " +  Double.toString(xNex)
+					"\nConvergence rate: "+ rate +
+					"\nValue: |f(x_n)| = " + Math.abs(f.evaluate(xNex)) + 
+					"\nRoot: x = " +  Double.toString(xNex)
 					);
 			println("");
-			*/
 			
-			//String layout = "%s & $%s$ & $%s$ & $%f$ \\\\";
-			//layout = String.format(layout, iteration.toString(), Integer.toString(depth), Integer.toString(pop), rate);
+			/*
+			String layout = "%s & $%s$ & $%s$ & $%f$ \\\\";
+			layout = String.format(layout, iteration.toString(), Integer.toString(depth), Integer.toString(pop), rate);
 			String layout = "& $%s$ & $%s$ & $%f$";
 			layout = String.format(layout, Integer.toString(depth), Integer.toString(pop), rate);		
 
 			println(layout);
-			
+			*/
 			visitedXValues.clear();
 			return xNex;
 		}else{
@@ -94,7 +94,7 @@ public class Find{
 							new W4NewtonRaphson(0.5),
 							new HalleyMod(), 
 							new HouseholderMod(),
-							//new DecompositionII(), /* TODO: add back into system*/
+							//new DecompositionII(), /* removed in favor of DecompositionIII*/
 							new DecompositionIII(),
 							new VariantNewtonsMethod(), 
 							new improvedHouseholder(),
@@ -137,8 +137,8 @@ public class Find{
 		String[] segmentation = line.split(",");
 		
 		Double xStart = Double.parseDouble(segmentation[1]);
-		Func f = new PolyWithCounter(segmentation[0]); 
-		//Func f = new Poly(segmentation[0]);
+		//Func f = new PolyWithCounter(segmentation[0]); 
+		Func f = new Poly(segmentation[0]);
 		String quadratic = Double.toString(expectQuadraticConvergence(f, xStart));
 		println("f(x) = "+f.toString()+
 				"\nInitial value: x_0 = " + Double.toString(xStart) +
@@ -416,6 +416,8 @@ class Poly implements Func{
 	}
 	
 	public String toString(){
+		
+		
 		StringBuilder temp = new StringBuilder();
 		boolean first = true;
 		for(PolyElement q :elements){
@@ -428,6 +430,7 @@ class Poly implements Func{
 			first = false;
 		}
 		return temp.toString();
+		
 	}
 	
 	public String toString(String type){
@@ -447,7 +450,6 @@ class Poly implements Func{
 		}
 		return temp.toString();
 	}
-	
 }
 
 class PolyElement implements Func{

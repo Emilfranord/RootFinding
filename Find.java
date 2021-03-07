@@ -39,6 +39,11 @@ public class Find{
 		
 		if(visitedXValues.contains(xNex) && Math.abs(f.evaluate(xNex)) > Math.sqrt(stoppingCriteria)){
 			//println(xNex.toString());
+			if(f instanceof Counter){
+				Counter c = (Counter) f;
+				c.popCount();
+			}
+			visitedXValues.clear();
 			throw new ArithmeticException("Non-converging cycle");
 		}
 		
@@ -49,6 +54,11 @@ public class Find{
 		boolean isClose = Math.abs(f.evaluate(xNex)) < stoppingCriteria;
 		boolean hasDiverged = depth >= Math.pow(10,4);
 		if(hasDiverged){
+			if(f instanceof Counter){
+				Counter c = (Counter) f;
+				c.popCount();
+			}
+			visitedXValues.clear();
 			throw new ArithmeticException("Diverged");
 		}
 		
@@ -57,7 +67,6 @@ public class Find{
 			int pop = -1;
 			if(f instanceof Counter){
 				Counter c = (Counter) f;
-				//println("diff.+ eval.: "+Integer.toString(c.popCount()));
 				pop = c.popCount();
 			}
 			
@@ -104,7 +113,17 @@ public class Find{
 		Double[] roots = new Double[methods.length];
 		
 		for(int i = 0; i<methods.length ; i++){
-			roots[i] = safeSolve(xCur, f, methods[i]);
+			//println("Algorithm: " + methods[i].toString());
+			//long t = System.nanoTime();
+			//for(int j = 0; j<1000; j++){
+				
+				roots[i] = safeSolve(xCur, f, methods[i]);
+				
+			//}
+			//long tTwo = System.nanoTime();
+			//long tAvr = (Math.abs(t-tTwo))/1000;
+			//println("Time: $"+tAvr+"\\frac{ns}{i}$ \n");
+			
 		}
 		return roots;
 	}
@@ -141,12 +160,10 @@ public class Find{
 		Func f = new Poly(segmentation[0]);
 		String quadratic = Double.toString(expectQuadraticConvergence(f, xStart));
 		println("f(x) = "+f.toString()+
-				"\nInitial value: x_0 = " + Double.toString(xStart) +
-				"\nh(x) = " + quadratic + 
-				"\n"
+				"\nInitial value: x_0 = " + Double.toString(xStart) +  +
+				"$\nh(x) = " + quadratic + 
+				"$\n"
 				);
-
-		
 		return solveManyMethods(xStart, f);
 	}
 
@@ -416,8 +433,8 @@ class Poly implements Func{
 	}
 	
 	public String toString(){
-		
-		
+		return this.toString("latex");
+		/*
 		StringBuilder temp = new StringBuilder();
 		boolean first = true;
 		for(PolyElement q :elements){
@@ -430,7 +447,7 @@ class Poly implements Func{
 			first = false;
 		}
 		return temp.toString();
-		
+		*/
 	}
 	
 	public String toString(String type){

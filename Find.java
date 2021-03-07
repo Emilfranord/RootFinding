@@ -160,7 +160,7 @@ public class Find{
 		Func f = new Poly(segmentation[0]);
 		String quadratic = Double.toString(expectQuadraticConvergence(f, xStart));
 		println("f(x) = "+f.toString()+
-				"\nInitial value: x_0 = " + Double.toString(xStart) +  +
+				"\nInitial value: x_0 = " + Double.toString(xStart) +
 				"$\nh(x) = " + quadratic + 
 				"$\n"
 				);

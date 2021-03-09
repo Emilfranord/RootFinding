@@ -12,6 +12,11 @@ public class Find{
 	public static void main(String[] args){
 		println("Rootfinding from file:");
 		solveFile(args[0]);
+		
+		
+		
+		
+		
 		println("Ended");
 	}
 	
@@ -23,6 +28,8 @@ public class Find{
 			return 0.0;
 		}
 	}
+	
+
 	
 	public static Double expectQuadraticConvergence(Func f, Double xStart){
 		Func fp = f.differentiate();

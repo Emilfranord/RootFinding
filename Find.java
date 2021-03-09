@@ -164,6 +164,7 @@ public class Find{
 				"$\nh(x) = " + quadratic + 
 				"$\n"
 				);
+				
 		return solveManyMethods(xStart, f);
 	}
 
@@ -436,8 +437,6 @@ class Poly implements Func{
 	}
 	
 	public String toString(){
-		return this.toString("latex");
-		/*
 		StringBuilder temp = new StringBuilder();
 		boolean first = true;
 		for(PolyElement q :elements){
@@ -450,7 +449,7 @@ class Poly implements Func{
 			first = false;
 		}
 		return temp.toString();
-		*/
+		
 	}
 	
 	public String toString(String type){

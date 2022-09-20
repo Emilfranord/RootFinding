@@ -6,9 +6,7 @@ public class Find{
 	static ArrayList<Double> visitedXValues = new ArrayList<Double>(); 
 	
 	public static void main(String[] args){
-		println("Rootfinding from file:");
-		solveFile(args[0]);
-		println("Ended");
+		solveManyStandardInput();
 	}
 	
 	public static Double safeSolve(Double xCur, Func f, ItMe iteration){
@@ -78,7 +76,7 @@ public class Find{
 							new W4NewtonRaphson(0.5),
 							new HalleyMod(), 
 							new HouseholderMod(),
-							//new DecompositionII(), /* removed in favor of DecompositionIII*/
+							new DecompositionII(), /* removed in favor of DecompositionIII*/
 							new DecompositionIII(),
 							new VariantNewtonsMethod(), 
 							new improvedHouseholder(),
